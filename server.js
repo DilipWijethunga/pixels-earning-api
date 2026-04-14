@@ -1,4 +1,6 @@
-require('dotenv').config();
+// server.js  (or index.js - whatever your main file is)
+require('dotenv').config();   // ← Must stay at the very top
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -17,21 +19,46 @@ app.use(express.json());
 app.use('/api/entries', entriesRouter);
 app.use('/api/pixel-price', priceRouter);
 
-// Health check
+// Health check (very useful on Render)
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'production'
+  });
 });
 
-// Connect to MongoDB and start server
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+// Better MongoDB connection with validation
+const connectDB = async () => {
+  const uri = process.env.MONGODB_URI;
+
+  if (!uri) {
+    console.error('❌ MONGODB_URI is missing! Please add it in Render Environment Variables.');
+    process.exit(1);
+  }
+
+  try {
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000,   // Fail faster if can't connect
     });
-  })
-  .catch((err) => {
+    console.log('✅ Connected to MongoDB successfully');
+  } catch (err) {
     console.error('❌ MongoDB connection error:', err.message);
     process.exit(1);
+  }
+};
+
+// Connect DB and start server
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Backend URL: https://your-service-name.onrender.com`);
   });
+});
+
+// Optional: Handle graceful shutdown
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  console.log('MongoDB connection closed.');
+  process.exit(0);
+});
