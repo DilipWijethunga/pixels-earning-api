@@ -7,6 +7,7 @@ const cors = require('cors');
 
 const entriesRouter = require('./routes/entries');
 const priceRouter = require('./routes/price');
+const tagsRouter = require('./routes/tags');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,6 +20,7 @@ app.use(express.json());
 // Routes
 app.use('/api/entries', entriesRouter);
 app.use('/api/pixel-price', priceRouter);
+app.use('/api/tags', tagsRouter);
 
 // Health check (very useful on Render)
 app.get('/api/health', (req, res) => {

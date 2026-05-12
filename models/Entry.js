@@ -6,19 +6,17 @@ const entrySchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    earnings: {
-      type: Number,
-      default: 0,
-    },
-    earningsNote: {
+    type: {
       type: String,
-      default: '',
+      enum: ['earning', 'expense'],
+      required: true,
     },
-    expenses: {
+    amount: {
       type: Number,
+      required: true,
       default: 0,
     },
-    expensesNote: {
+    tag: {
       type: String,
       default: '',
     },

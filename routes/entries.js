@@ -50,13 +50,12 @@ router.get('/', async (req, res) => {
 // POST /api/entries
 router.post('/', async (req, res) => {
   try {
-    const { date, earnings, earningsNote, expenses, expensesNote, note } = req.body;
+    const { date, type, amount, tag, note } = req.body;
     const entry = new Entry({
       date: new Date(date),
-      earnings: earnings || 0,
-      earningsNote: earningsNote || '',
-      expenses: expenses || 0,
-      expensesNote: expensesNote || '',
+      type,
+      amount: parseFloat(amount) || 0,
+      tag: tag || '',
       note: note || '',
     });
     const saved = await entry.save();
@@ -69,15 +68,14 @@ router.post('/', async (req, res) => {
 // PUT /api/entries/:id
 router.put('/:id', async (req, res) => {
   try {
-    const { date, earnings, earningsNote, expenses, expensesNote, note } = req.body;
+    const { date, type, amount, tag, note } = req.body;
     const updated = await Entry.findByIdAndUpdate(
       req.params.id,
       {
         date: new Date(date),
-        earnings: earnings || 0,
-        earningsNote: earningsNote || '',
-        expenses: expenses || 0,
-        expensesNote: expensesNote || '',
+        type,
+        amount: parseFloat(amount) || 0,
+        tag: tag || '',
         note: note || '',
       },
       { new: true, runValidators: true }
